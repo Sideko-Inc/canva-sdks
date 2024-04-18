@@ -1,0 +1,114 @@
+openapi: 3.0.3
+
+info:
+  title: Canva Connect API
+  version: 0.1.0
+  description: | 
+    The Canva Connect API facilitates third-party app developers to extend key Canva capabilities off-platform. It allows Canva to share data with third parties, even when a user is not actively designing in Canva.
+    You can use the Canva Connect API to create integrations with third-party apps, keep Canva in sync with cloud storage and content management apps, collaborate and communicate with different platforms, or embed Canva into project management workflows.
+    For instance, you could create an integration (we call this a client) between Canva and your digital asset management system using the Connect API, to create Canva folders and upload your assets directly to these folders.
+    This is in contrast to the Canva App SDKs which bring third-party capabilities to Canva (on-platform), to enhance user experience designing in Canva.
+servers:
+  - url: "https://api.canva.com/rest/v1"
+
+paths:
+  /designs:
+    get:
+      summary: List all designs
+      operationId: list_all_designs
+      parameters:
+        - name: query
+          description: Lets you search the designs, and designs shared with the user, using a search term or terms.
+          in: query
+          required: false
+          schema:
+            type: string
+            example: logos
+        - name: continuation
+          description: If the success response contains a continuation token, the list contains more designs you can list. You can use this token as a query parameter and retrieve more designs from the list.
+          in: query
+          required: false
+          schema:
+            example: 597ad709-4e0d-4714-8e4f-19f34bffe473
+            type: string
+        - name: ownership
+          description: Filter the list of designs based on ownership of the designs.
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - OWNED
+              - SHARED
+              - ANY
+        - name: sort_by
+          description: Sort the list of designs
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - RELEVANCE
+              - MODIFIED_DESCENDING
+              - MODIFIED_ASCENDING
+              - TITLE_DESCENDING
+              - TITLE_ASCENDING
+      responses:
+        "200":
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Design"
+                  continuation:
+                    type: string
+                    description: A continuation token. If the success response contains a continuation token, the list contains more designs you can list. 
+
+components:
+  schemas:
+    Design: 
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        owner:
+          $ref: "#/components/schemas/TeamUser"
+        doctype_name:
+          type: string
+        thumbnail:
+          $ref: "#/components/schemas/Thumbnail"
+
+    TeamUser:
+      type: object
+      properties:
+        user_id:
+          type: string
+        team_id:
+          type: string
+        display_name:
+          type: string
+
+    Thumbnail:
+      type: object
+      properties:
+        width:
+          type: string
+        height:
+          type: integer
+        url:
+          type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+security:
+  - bearerAuth: []
